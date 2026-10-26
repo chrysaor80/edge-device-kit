@@ -6,25 +6,25 @@ on:
 
 jobs:
   python:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python: ["3.10", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - run: pip install pytest hypothesis pyserial
       - run: cd python && pytest -q
 
   cpp:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         compiler: [g++, clang++]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build with AddressSanitizer + UBSan, warnings as errors
         run: |
           cmake -S cpp -B cpp/build-asan -DEDGEKIT_SANITIZE=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
@@ -33,17 +33,18 @@ jobs:
         run: ctest --test-dir cpp/build-asan --output-on-failure
 
   static-analysis:
-    runs-on: ubuntu-latest
+    # pinned: a newer clang-tidy adds checks, and the gate should change on purpose, not with the runner image
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: sudo apt-get update && sudo apt-get install -y clang-tidy
       - run: cmake -S cpp -B cpp/build -DEDGEKIT_TESTS=OFF
       - run: clang-tidy -p cpp/build cpp/src/*.cpp cpp/tools/*.cpp
 
   fuzz:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           cmake -S cpp -B cpp/build-fuzz -DEDGEKIT_FUZZ=ON -DEDGEKIT_TESTS=OFF -DCMAKE_CXX_COMPILER=clang++
           cmake --build cpp/build-fuzz --target fuzz_parsers -j
@@ -51,10 +52,10 @@ jobs:
         run: mkdir -p corpus && ./cpp/build-fuzz/fuzz_parsers corpus -max_total_time=120 -print_final_stats=1
 
   cross:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install pytest hypothesis pyserial
