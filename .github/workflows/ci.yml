@@ -41,6 +41,16 @@ jobs:
       - run: cmake -S cpp -B cpp/build -DEDGEKIT_TESTS=OFF
       - run: clang-tidy -p cpp/build cpp/src/*.cpp cpp/tools/*.cpp
 
+  static-analysis-next:
+    # early warning: the same gate on the newest runner image; informative, does not block
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y clang-tidy && clang-tidy --version
+      - run: cmake -S cpp -B cpp/build -DEDGEKIT_TESTS=OFF
+      - run: clang-tidy -p cpp/build cpp/src/*.cpp cpp/tools/*.cpp
+
   fuzz:
     runs-on: ubuntu-24.04
     steps:

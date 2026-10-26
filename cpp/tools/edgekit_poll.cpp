@@ -3,12 +3,13 @@
 //   edgekit_poll /dev/ttyUSB0 --slave 1 --start 0 --count 2 --scale 10 --n 5 --period-ms 1000
 //
 // A failed cycle prints {"ok":false,"error":"..."} — it never prints a made-up number.
-#include <cerrno>
+#include <charconv>
 #include <chrono>
-#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <string_view>
+#include <system_error>
 #include <thread>
 
 #include "edgekit/transport.hpp"
@@ -18,10 +19,11 @@ namespace {
 long arg_long(int argc, char** argv, const std::string& name, long def, long lo, long hi) {
     for (int i = 2; i + 1 < argc; ++i) {
         if (name != argv[i]) continue;
-        char* end = nullptr;
-        errno = 0;
-        const long v = std::strtol(argv[i + 1], &end, 10);
-        if (errno != 0 || end == argv[i + 1] || *end != '\0' || v < lo || v > hi)
+        // std::from_chars: no errno, no locale, and it reports where parsing stopped
+        const std::string_view text(argv[i + 1]);
+        long v = 0;
+        const auto [ptr, ec] = std::from_chars(text.data(), text.data() + text.size(), v);
+        if (ec != std::errc() || ptr != text.data() + text.size() || v < lo || v > hi)
             throw std::invalid_argument(name + " must be an integer in [" + std::to_string(lo) + ", " +
                                         std::to_string(hi) + "]");
         return v;
