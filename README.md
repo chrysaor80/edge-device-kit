@@ -1,5 +1,7 @@
 # edge-device-kit
 
+[![ci](https://github.com/chrysaor80/edge-device-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/chrysaor80/edge-device-kit/actions/workflows/ci.yml)
+
 현장 장비와 통신하는 코드에서 **실제로 문제가 됐던 부분만 골라** 정리한 리포지토리입니다.
 직접 개발해 현장에서 운영 중인 두 시스템에서 핵심 모듈을 발췌·재구성했고,
 같은 로직을 C++17로 옮긴 뒤 Python 원본과 **입력 단위로 대조 검증**합니다.
