@@ -1,0 +1,21 @@
+[project]
+name = "edgekit"
+version = "0.1.0"
+description = "Field-device protocol pieces (Modbus RTU, vendor RS-485 frames, Sensirion I2C) with fault-injection tests"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+test = ["pytest>=8", "hypothesis>=6", "pyserial>=3.5"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["edgekit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
